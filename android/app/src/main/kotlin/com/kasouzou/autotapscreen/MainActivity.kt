@@ -1,4 +1,4 @@
-package com.example.auto_tap_screen
+package com.kasouzou.autotapscreen
 
 import android.content.Intent
 import android.os.Build
