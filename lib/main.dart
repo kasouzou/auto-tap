@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,12 +13,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'YouTube Ad Sniper',
+      title: '広告スキップボタン自動タップアプリ',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
         useMaterial3: true,
+        textTheme: GoogleFonts.notoSansTextTheme(
+          Theme.of(context).textTheme,
+        ),
       ),
-      home: const MyHomePage(title: '自動スキップアプリ'),
+      home: const MyHomePage(title: '広告スキップボタン自動タップアプリ'),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -86,12 +90,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      //   title: Text(widget.title),
-      //   // 横画面時にAppBarがデカすぎると邪魔なので少しスリムに
-      //   toolbarHeight: MediaQuery.of(context).orientation == Orientation.landscape ? 40 : null,
-      // ),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text(widget.title),
+        // 横画面時にAppBarがデカすぎると邪魔なので少しスリムに
+        toolbarHeight: MediaQuery.of(context).orientation == Orientation.landscape ? 40 : null,
+      ),
       // 【マクロな視点】横画面でのオーバーフローを防ぐための必須スクロール設定
       body: SingleChildScrollView(
         child: Padding(
@@ -182,7 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
           if (_isMonitoring) ...[
             _buildStatusRow(Icons.check, "バックグラウンド監視：アクティブ"),
             _buildStatusRow(Icons.check, "ユーザー補助権限：有効"),
-            _buildStatusRow(Icons.sync, "ターゲット：YouTube広告を待機中..."),
+            _buildStatusRow(Icons.sync, "ターゲット:YouTube広告を待機中..."),
           ] else ...[
             _buildStepRow('1', 'ユーザー補助権限の有効化', '上の「設定でユーザー補助を許可」ボタンを押して設定から本アプリのユーザー補助をONにしてください。'),
             _buildDivider(),

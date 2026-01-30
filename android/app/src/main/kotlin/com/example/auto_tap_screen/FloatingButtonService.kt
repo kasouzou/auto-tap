@@ -29,7 +29,7 @@ class FloatingButtonService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId, 
-                "スキップボタン監視", 
+                "広告スキップボタン監視", 
                 NotificationManager.IMPORTANCE_LOW // MINだと通知が出ない場合があるためLOWを推奨
             )
             val manager = getSystemService(NotificationManager::class.java)
@@ -37,8 +37,8 @@ class FloatingButtonService : Service() {
         }
 
         val notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("自動スキップ稼働中")
-            .setContentText("スキップボタンを自動でスキャンしています")
+            .setContentTitle("広告スキップボタン自動タップアプリ稼働中")
+            .setContentText("広告スキップボタンを自動でスキャンしています")
             .setSmallIcon(android.R.drawable.ic_menu_view)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
