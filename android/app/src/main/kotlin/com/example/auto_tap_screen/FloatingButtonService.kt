@@ -14,14 +14,14 @@ class FloatingButtonService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.d("FloatingService", "自動監視エンジン起動！")
+        Log.d("FloatingService", "自動スキップ起動！")
         
         // 1. フォアグラウンド通知を開始（これでアプリが裏でも死ななくなる）
         startForegroundServiceWithNotification()
 
         // 2. ユーザーへのフィードバック
         // これが出れば、ボタンがなくても「あ、動いたな」とわかる
-        Toast.makeText(this, "広告スナイパー、監視を開始しました", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "自動スキップを開始しました。", Toast.LENGTH_SHORT).show()
     }
 
     private fun startForegroundServiceWithNotification() {
@@ -29,7 +29,7 @@ class FloatingButtonService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId, 
-                "広告スキップ監視", 
+                "スキップボタン監視", 
                 NotificationManager.IMPORTANCE_LOW // MINだと通知が出ない場合があるためLOWを推奨
             )
             val manager = getSystemService(NotificationManager::class.java)
@@ -37,8 +37,8 @@ class FloatingButtonService : Service() {
         }
 
         val notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("広告スナイパー稼働中")
-            .setContentText("YouTubeの広告を自動でスキャンしています")
+            .setContentTitle("自動スキップ稼働中")
+            .setContentText("スキップボタンを自動でスキャンしています")
             .setSmallIcon(android.R.drawable.ic_menu_view)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
@@ -49,6 +49,6 @@ class FloatingButtonService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("FloatingService", "自動監視エンジン停止")
+        Log.d("FloatingService", "自動スキップ停止！")
     }
 }

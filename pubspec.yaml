@@ -61,9 +61,9 @@ flutter_launcher_icons:
   # ↓これは古いAndroidやiOS用（1枚絵として使われる）
   image_path: "assets/icon/icon.png"
   
-  # --- ここからがアダプティブアイコン（三井住友銀行風にする設定） ---
+  # --- ここからがアダプティブアイコン（三井住友銀行風にする設定）白 ---
   # 背景色を指定（シャープ1つでOK）
-  adaptive_icon_background: "#061047" 
+  adaptive_icon_background: "#FFFFFF" 
   
   # 前景（ロゴ）を指定。ここが重要！
   # 背景を透明にしたロゴ画像を指定してください。

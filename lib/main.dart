@@ -86,12 +86,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-        // 横画面時にAppBarがデカすぎると邪魔なので少しスリムに
-        toolbarHeight: MediaQuery.of(context).orientation == Orientation.landscape ? 40 : null,
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      //   title: Text(widget.title),
+      //   // 横画面時にAppBarがデカすぎると邪魔なので少しスリムに
+      //   toolbarHeight: MediaQuery.of(context).orientation == Orientation.landscape ? 40 : null,
+      // ),
       // 【マクロな視点】横画面でのオーバーフローを防ぐための必須スクロール設定
       body: SingleChildScrollView(
         child: Padding(
@@ -101,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               // 状態アイコンとテキスト
               Icon(
-                _isMonitoring ? Icons.check_circle : Icons.pause_circle_filled,
+                _isMonitoring ? Icons.visibility : Icons.visibility_off,
                 size: 80,
                 color: _isMonitoring ? Colors.green : Colors.grey,
               ),
@@ -171,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               const SizedBox(width: 8),
               Text(
-                _isMonitoring ? 'システム稼働状況' : 'セットアップ手順',
+                _isMonitoring ? 'アプリ稼働状況' : 'セットアップ手順',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, letterSpacing: 1.2),
               ),
             ],
@@ -184,11 +184,13 @@ class _MyHomePageState extends State<MyHomePage> {
             _buildStatusRow(Icons.check, "ユーザー補助権限：有効"),
             _buildStatusRow(Icons.sync, "ターゲット：YouTube広告を待機中..."),
           ] else ...[
-            _buildStepRow('01', '権限の有効化', '設定から本アプリのユーザー補助をONにしてください。'),
+            _buildStepRow('1', 'ユーザー補助権限の有効化', '上の「設定でユーザー補助を許可」ボタンを押して設定から本アプリのユーザー補助をONにしてください。'),
             _buildDivider(),
-            _buildStepRow('02', 'サービスの開始', '開始ボタンを押し、通知欄にアイコンが出れば有効です。'),
+            _buildStepRow('2', 'フローティング設定の有効化', '設定から「アプリの上に重ねて使う」または「フローティング設定」設定をONにしてください。'),
             _buildDivider(),
-            _buildStepRow('03', '自動実行', 'YouTubeを開くと広告スキップが自動実行されます。'),
+            _buildStepRow('3', 'サービスの開始', '開始ボタンを押し、通知欄にアイコンが出れば有効です。'),
+            _buildDivider(),
+            _buildStepRow('4', 'Youtubeを開く', 'YouTubeを開くと広告スキップボタンの自動タップが自動実行されます。'),
           ],
         ],
       ),
