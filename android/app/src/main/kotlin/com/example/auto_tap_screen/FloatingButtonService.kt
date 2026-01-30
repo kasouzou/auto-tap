@@ -9,6 +9,7 @@ import android.os.IBinder
 import android.view.Gravity
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.Toast // 【これが必要！】Toastを使えるようにする
 import androidx.core.app.NotificationCompat
 import android.util.Log
 
@@ -26,17 +27,17 @@ class FloatingButtonService : Service() {
 
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         
-        // 【独自】実行ボタン！
         floatingButton = Button(this).apply {
-            text = "TAP!"
-            setBackgroundColor(Color.RED)
+            text = "TEST" // 全自動のテストボタンにする
+            setBackgroundColor(Color.BLUE) // わかりやすく青色にしてみる？
             setTextColor(Color.WHITE)
-            alpha = 0.9f
             
             setOnClickListener {
-                Log.d("FloatingService", "ボタンが押された！指に命令を送るぞ")
-                // 【マクロ連携】指（AutoTapService）にタップを依頼
-                AutoTapService.tapNow()
+                Log.d("FloatingService", "テスト実行：画面内の『スキップ』を探します")
+                
+                // 【修正ポイント】存在しない tapNow() ではなく、サービスに通知を送るか、
+                // ログを出して今の状態（全自動が動いているか）を確認する
+                Toast.makeText(applicationContext, "全自動監視中！YouTubeを開いてみてね", Toast.LENGTH_SHORT).show()
             }
         }
 

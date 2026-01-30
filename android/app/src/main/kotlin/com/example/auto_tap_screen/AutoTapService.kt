@@ -1,64 +1,63 @@
 package com.example.auto_tap_screen
 
 import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.GestureDescription
-import android.content.Context
-import android.graphics.Path
 import android.view.accessibility.AccessibilityEvent
-import android.util.Log // ログ出力用に追加
+import android.view.accessibility.AccessibilityNodeInfo
+import android.util.Log // これが必要だった！
+import android.os.Vibrator
+import android.content.Context
+import android.widget.Toast
 
+// 【重要】ここが「家」の門構え。これがないとエラーになる！
 class AutoTapService : AccessibilityService() {
 
-    // ---------------------------------------------------------
-    // 【独自】魔法の窓口 (これがないと他から呼べない！)
-    // ---------------------------------------------------------
-    companion object {
-        private var instance: AutoTapService? = null
+    override fun onAccessibilityEvent(event: AccessibilityEvent) {
+        // 画面の変化を検知
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED || 
+            event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            
+            val rootNode = rootInActiveWindow ?: return
 
-        // 音響サービスが「AutoTapService.tapNow()」と呼ぶための関数
-        fun tapNow() {
-            if (instance == null) {
-                Log.e("AutoTap", "サービスが未起動！ユーザー補助設定をONにして！")
+            // YouTube系アプリだけに限定
+            val targetApps = listOf("com.google.android.youtube", "com.google.android.apps.youtube.music")
+            val currentPackage = rootNode.packageName?.toString() ?: ""
+            
+            if (!targetApps.contains(currentPackage)) {
+                return 
             }
-            instance?.triggerTapFromSavedCoordinates()
+
+            // スキップ対象の文字リスト
+            val skipTerms = listOf("広告をスキップ", "スキップ", "Skip Ad", "動画をスキップ")
+
+            for (term in skipTerms) {
+                val nodes = rootNode.findAccessibilityNodeInfosByText(term)
+                if (nodes != null) {
+                    for (node in nodes) {
+                        if (node.isVisibleToUser && isClickableRecursive(node)) {
+                            // 魔法発動時のフィードバック
+                            val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                            v.vibrate(100)
+                            
+                            // メインスレッドでトーストを表示
+                            Log.d("AutoTap", "スナイプ成功：[$term] を自動タップしました！")
+                            return 
+                        }
+                    }
+                }
+            }
         }
     }
 
-    override fun onServiceConnected() {
-        super.onServiceConnected()
-        instance = this // サービス起動時に自分を登録
-        Log.d("AutoTap", "魔法の指、準備完了！")
+    // 補助関数もクラスの中に入れる！
+    private fun isClickableRecursive(node: AccessibilityNodeInfo?): Boolean {
+        if (node == null) return false
+        if (node.isClickable) {
+            return node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+        }
+        return isClickableRecursive(node.parent)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        instance = null // 終了時に登録解除
-    }
-
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
-    override fun onInterrupt() {}
-
-    fun triggerTapFromSavedCoordinates() {
-        val sharedPref = getSharedPreferences("TapSettings", Context.MODE_PRIVATE)
-        val targetX = sharedPref.getFloat("targetX", -1f)
-        val targetY = sharedPref.getFloat("targetY", -1f)
-
-        if (targetX == -1f || targetY == -1f) return
-        performTap(targetX, targetY)
-    }
-
-    private fun performTap(x: Float, y: Float) {
-        val path = Path()
-        path.moveTo(x, y)
-        val gestureBuilder = GestureDescription.Builder()
-        val stroke = GestureDescription.StrokeDescription(path, 0, 100)
-        gestureBuilder.addStroke(stroke)
-
-        dispatchGesture(gestureBuilder.build(), object : GestureResultCallback() {
-            override fun onCompleted(gestureDescription: GestureDescription?) {
-                super.onCompleted(gestureDescription)
-                Log.d("AutoTap", "タップ成功: ($x, $y)")
-            }
-        }, null)
+    override fun onInterrupt() {
+        // サービス中断時の処理
     }
 }

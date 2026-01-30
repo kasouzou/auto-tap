@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" />
     <application
-        android:label="auto_tap_screen"
+        android:label="Auto-Skip"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         

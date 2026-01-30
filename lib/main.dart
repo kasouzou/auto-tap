@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'おばあちゃんの自動タップ'),
+      home: const MyHomePage(title: 'Auto-Skip'),
       debugShowCheckedModeBanner: false,
     );
   }
