@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // 【公式】MethodChannel用
-import 'package:permission_handler/permission_handler.dart'; // 【外部】権限管理用
+import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,12 +12,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'SoundTap Auto-Clicker',
+      title: 'YouTube Ad Sniper',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Auto-Skip'),
+      home: const MyHomePage(title: '自動スキップアプリ'),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -32,58 +32,55 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // ---------------------------------------------------------
-  // 【独自変数】platform
-  // ---------------------------------------------------------
   static const platform = MethodChannel('com.example.auto_tap_screen/tap');
+  
+  // 【独自変数】今、監視エンジンが動いているかどうかを管理
+  bool _isMonitoring = false;
 
-  // --- 1. 予約系の処理（既存のもの） ---
-
-  Future<void> _checkPermissionAndStart() async {
-    var status = await Permission.systemAlertWindow.status;
-    if (status.isGranted) {
-      _startOverlayService();
-    } else {
-      await Permission.systemAlertWindow.request();
-    }
-  }
-
-  Future<void> _startOverlayService() async {
+  Future<void> _openAccessibilitySettings() async {
     try {
-      // MainActivity.kt の when文 の中の "startOverlay" に届く
-      await platform.invokeMethod('startOverlay');
+      await platform.invokeMethod('openAccessibilitySettings');
     } on PlatformException catch (e) {
-      debugPrint("Nativeエラー: '${e.message}'.");
+      debugPrint("設定画面が開けません: '${e.message}'.");
     }
   }
 
-  // --- 2. 監視系の処理（今回追加！） ---
-
-  // 【独自関数】マイクと通知の権限を確認してから監視をスタートする
-  // _handleStartMonitoring をシンプルに！
-  Future<void> _handleStartMonitoring() async {
-    // センサーには特別な実行時権限（ポップアップ）は不要！
-    // 通知権限だけ確認すればOK（Android 13+）
-    
-    if (await Permission.notification.request().isGranted) {
-        _invokeNativeMethod('startMonitoring');
+  // 監視の「開始」と「停止」を切り替えるメインロジック
+  Future<void> _toggleMonitoring() async {
+    if (_isMonitoring) {
+      // 停止処理
+      await _invokeNativeMethod('stopMonitoring');
+      setState(() {
+        _isMonitoring = false;
+      });
+      _showSnackBar('自動スキップを停止しました。');
     } else {
-        // 通知許可がないと、バックグラウンドで死ぬ可能性が高い
-        if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('通知を許可しないと、裏で監視できません！')),
-            );
+      // 開始処理
+      if (await Permission.notification.request().isGranted) {
+        if (await Permission.systemAlertWindow.request().isGranted) {
+          await _invokeNativeMethod('startMonitoring');
+          setState(() {
+            _isMonitoring = true;
+          });
+          _showSnackBar('自動スキップを開始しました！YouTubeを開いてください。');
         }
+      }
     }
   }
 
-  // 【独自関数】Native側へ命令を送る共通処理（コードをスッキリさせるため）
   Future<void> _invokeNativeMethod(String methodName) async {
     try {
       await platform.invokeMethod(methodName);
     } on PlatformException catch (e) {
       debugPrint("Nativeエラー ($methodName): '${e.message}'.");
     }
+  }
+
+  void _showSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
+    );
   }
 
   @override
@@ -94,44 +91,77 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Icon(Icons.spatial_audio_off, size: 80, color: Colors.deepPurple),
-            const SizedBox(height: 30),
-            
-            // 予約ボタン
-            ElevatedButton.icon(
-              onPressed: _checkPermissionAndStart,
-              icon: const Icon(Icons.add_location_alt),
-              label: const Text('1. タップ位置を予約'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              // 状態に合わせてアイコンの色や形を変える（鋭い観察眼！）
+              Icon(
+                _isMonitoring ? Icons.visibility : Icons.visibility_off,
+                size: 100,
+                color: _isMonitoring ? Colors.green : Colors.grey,
               ),
-            ),
-            
-            const SizedBox(height: 20),
-
-            // 【追加】監視ボタン
-            ElevatedButton.icon(
-              onPressed: _handleStartMonitoring,
-              icon: const Icon(Icons.play_arrow),
-              label: const Text('2. 監視スタート！'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+              const SizedBox(height: 10),
+              Text(
+                _isMonitoring ? "現在：自動スキップ稼働中" : "現在：自動スキップ停止中",
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
-            ),
+              const SizedBox(height: 40),
+              
+              // 1. ユーザー補助設定（これは常に必要）
+              ElevatedButton.icon(
+                onPressed: _openAccessibilitySettings,
+                icon: const Icon(Icons.settings_accessibility),
+                label: const Text('設定でユーザー補助を許可'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 60),
+                ),
+              ),
+              
+              const SizedBox(height: 20),
 
-            const SizedBox(height: 40),
-            const Text(
-              '使い方：\n①位置を予約する\n②監視をスタートする\n③スマホの近くで手を叩く！',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey),
-            ),
-          ],
+              // 2. 開始 / 停止ボタン（動的に変化！）
+              ElevatedButton.icon(
+                onPressed: _toggleMonitoring,
+                icon: Icon(_isMonitoring ? Icons.stop : Icons.play_arrow),
+                label: Text(_isMonitoring ? '自動スキップを停止' : '自動スキップを開始'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _isMonitoring ? Colors.red : Colors.green,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 60),
+                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+
+              const SizedBox(height: 40),
+              // 説明書
+              _buildGuideSection(),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildGuideSection() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.orange.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.orange.withOpacity(0.3)),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('【使い方】', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          SizedBox(height: 10),
+          Text('・まず、上のボタンからユーザー補助設定を開きこのアプリのユーザー補助をONにしてください。'),
+          Text('・開始すると通知欄にアイコンが出ます。'),
+          Text('・止めたい時は赤いボタンを押してください。'),
+          Text('・もう一度押せば、いつでも再開できます。'),
+        ],
       ),
     );
   }

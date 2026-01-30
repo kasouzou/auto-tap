@@ -47,6 +47,14 @@ class MainActivity: FlutterActivity() {
                     result.success(Settings.canDrawOverlays(this))
                 }
 
+                // MainActivity.kt の MethodChannel の handle 内に追加
+                "openAccessibilitySettings" -> {
+                    val intent = Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
+                    result.success(null)
+                }
+
                 else -> {
                     result.notImplemented()
                 }

@@ -46,12 +46,47 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  # adaptive_icon_background: "#ff0000" # ここで背景色を指定（好きな色でOK）
+  # # もし背景も画像にしたい場合は image_path の代わりに以下を使います
+  # # adaptive_icon_background: "assets/icon/background_image.png"
+
+  # ↓これは古いAndroidやiOS用（1枚絵として使われる）
+  image_path: "assets/icon/icon.png"
+  
+  # --- ここからがアダプティブアイコン（三井住友銀行風にする設定） ---
+  # 背景色を指定（シャープ1つでOK）
+  adaptive_icon_background: "#061047" 
+  
+  # 前景（ロゴ）を指定。ここが重要！
+  # 背景を透明にしたロゴ画像を指定してください。
+  adaptive_icon_foreground: "assets/icon/icon.png" 
+  # ---------------------------------------------------------
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/icon/icon.png"
+
 # The following section is specific to Flutter packages.
 flutter:
+  assets:
+    - assets/icon/
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
