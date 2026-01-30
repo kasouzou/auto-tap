@@ -1,4 +1,4 @@
-package com.example.auto_tap_screen
+package com.kasouzou.autotapscreen
 
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent

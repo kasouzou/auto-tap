@@ -1,4 +1,4 @@
-package com.example.auto_tap_screen // 自分のパッケージ名に合わせてね
+package com.kasouzou.autotapscreen
 
 import android.app.Service
 import android.content.Context
